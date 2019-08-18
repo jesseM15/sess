@@ -7,18 +7,18 @@ $dotenv->load();
 
 // Set database connection settings
 $database = [
-	'host' => getenv('HOST'),
-	'db' => getenv('DB'),
-	'user' => getenv('USER'),
-	'pass' => getenv('PASS'),
+	'host' 	=> getenv('HOST'),
+	'db' 	=> getenv('DB'),
+	'user' 	=> getenv('USER'),
+	'pass' 	=> getenv('PASS'),
 ];
 
 // Set session settings
 $settings = [
-	'https' => true,
-	'httpOnly' => true,
-	'saveHandler' => 'db',
-	'database' => $database,
+	'https' 		=> true,
+	'httpOnly' 		=> true,
+	'saveHandler' 	=> 'db',
+	'database' 		=> $database,
 ];
 
 // Initialize session
@@ -33,7 +33,7 @@ $_SESSION['hey'] = 'hello session';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Universal Session</title>
+	<title>jfry session</title>
 </head>
 <body>
 	<pre><?= print_r($_SESSION) ?></pre>

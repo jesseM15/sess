@@ -1,14 +1,5 @@
 <?php 
 
-// Session hijacking refers to stealing the session cookie.
-// 	- Prevented by https, session.cookie_httponly, session.cookie_secure
-// Session fixation refers to setting another user's session id through URL or POST data
-//  - Prevented by session.use_strict_mode
-
-// TODO:
-// Regenerate session id after x amount of time.
-// This could be $defaults['regenerateId'] => '15 minutes' for example.
-
 use SessionHandlers\DatabaseSessionHandler;
 
 class Session
@@ -19,12 +10,12 @@ class Session
 	public function __construct(array $settings = [])
 	{
 		$defaults = [
-			'name' 			=> 'Universal_Session',
+			'name' 			=> 'jfry_session',
 			'lifetime' 		=> '20 minutes',
 			'path' 			=> '/',
 			'domain' 		=> null,
-			'https' 		=> isset($_SERVER['HTTPS']),
-			'httpOnly' 		=> false,
+			'https' 		=> true,
+			'httpOnly' 		=> true,
 			'saveHandler' 	=> 'files',
 			'iniSettings' 	=> [
 				'session.use_strict_mode' 			=> 1,
@@ -36,24 +27,22 @@ class Session
 			],
 			'database' 		=> [
 				'host' 								=> 'localhost',
-				'db' 								=> 'test',
+				'db' 								=> '',
 				'user' 								=> '',
 				'pass' 								=> '',
 				'charset' 							=> 'utf8mb4',
+				'table' 							=> 'session',
 			],
 		];
 
+		// Build settings
 		$settings['iniSettings'] = array_merge($defaults['iniSettings'], $settings['iniSettings'] ?? []);
 		$settings['database'] = array_merge($defaults['database'], $settings['database'] ?? []);
 		$settings = array_merge($defaults, $settings);
 
-		if (is_string($settings['lifetime']))
-		{
-			$settings['lifetime'] = strtotime($settings['lifetime']) - time();
-		}
-
 		$this->settings = $settings;
 
+		// Apply ini settings
 		session_name($settings['name']);
 
 		if (!$this->iniSet($settings['iniSettings']))
@@ -61,8 +50,7 @@ class Session
 			echo '<pre>';print_r($this->errors);die();
 		}
 
-		session_set_cookie_params($settings['lifetime'], $settings['path'], $settings['domain'], $settings['https'], $settings['httpOnly']);
-
+		// Set save handler
 		if ($settings['saveHandler'] === 'database' || $settings['saveHandler'] === 'db')
 		{
 			if (!empty($settings['database']['user']) && !empty($settings['database']['pass']))
@@ -72,6 +60,11 @@ class Session
 			}
 		}
 
+		// Set cookie
+		$settings['lifetime'] = strtotime($settings['lifetime']) - time();
+		session_set_cookie_params($settings['lifetime'], $settings['path'], $settings['domain'], $settings['https'], $settings['httpOnly']);
+
+		// Start session
 		if (session_status() == PHP_SESSION_NONE)
 		{
 			session_start();

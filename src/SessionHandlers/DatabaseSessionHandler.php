@@ -6,9 +6,8 @@ use PDO;
 
 class DatabaseSessionHandler implements \SessionHandlerInterface
 {
-	protected const TABLE = 'session';
-	protected $pdo;
 	protected $settings;
+	protected $pdo;
 
 	public function __construct(array $settings)
 	{
@@ -41,7 +40,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 		return false;
 	}
 
-	protected function executeSql($sql, $binds = [])
+	// rename this to query for simplicity
+	protected function query($sql, $binds = [])
 	{
 		try {
 			if (!$stmt = $this->pdo->prepare($sql))
@@ -62,8 +62,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 
 	protected function migrate()
 	{
-		$sql = 'CREATE TABLE IF NOT EXISTS ' . self::TABLE . '(id VARCHAR(250) PRIMARY KEY,data BLOB NULL,last_activity INT NULL);';
-		$stmt = $this->executeSql($sql);
+		$sql = 'CREATE TABLE IF NOT EXISTS ' . $this->settings['table'] . '(id VARCHAR(250) PRIMARY KEY,data BLOB NULL,last_activity INT NULL);';
+		$stmt = $this->query($sql);
 		$stmt = null;
 
 		return true;
@@ -79,8 +79,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 		}
 		$session_id = $_COOKIE[session_name()];
 
-		$sql = 'SELECT id FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1;';
-		$stmt = $this->executeSql($sql, [$session_id]);
+		$sql = 'SELECT id FROM ' . $this->settings['table'] . ' WHERE id = ? LIMIT 1;';
+		$stmt = $this->query($sql, [$session_id]);
 		if (!$stmt->fetch())
 		{
 			// Generate new session id if the id provided by cookie is not found in database.
@@ -100,8 +100,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 
 	public function destroy($session_id)
 	{
-		$sql = 'DELETE FROM ' . self::TABLE . ' WHERE id = ?';
-		$stmt = $this->executeSql($sql, [$session_id]);
+		$sql = 'DELETE FROM ' . $this->settings['table'] . ' WHERE id = ?';
+		$stmt = $this->query($sql, [$session_id]);
 		$stmt = null;
 
 		return true;
@@ -110,8 +110,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 	public function gc($maxlifetime)
 	{
 		$maxTimeStamp = time() - $maxlifetime;
-		$sql = 'DELETE FROM ' . self::TABLE . ' WHERE last_activity < ? || last_activity is NULL;';
-		$stmt = $this->executeSql($sql, [$maxTimeStamp]);
+		$sql = 'DELETE FROM ' . $this->settings['table'] . ' WHERE last_activity < ? || last_activity is NULL;';
+		$stmt = $this->query($sql, [$maxTimeStamp]);
 		$stmt = null;
 
 		return true;
@@ -126,8 +126,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 
 	public function read($session_id)
 	{
-		$sql = 'SELECT data FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1;';
-		$stmt = $this->executeSql($sql, [$session_id]);
+		$sql = 'SELECT data FROM ' . $this->settings['table'] . ' WHERE id = ? LIMIT 1;';
+		$stmt = $this->query($sql, [$session_id]);
 		if($row = $stmt->fetch())
 		{
 			$data = $row['data'];
@@ -139,8 +139,8 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
 
 	public function write($session_id, $session_data)
 	{
-		$sql = 'REPLACE INTO ' . self::TABLE . ' (id, data, last_activity) VALUES(?, ?, ?);';
-		$stmt = $this->executeSql($sql, [$session_id, $session_data, time()]);
+		$sql = 'REPLACE INTO ' . $this->settings['table'] . ' (id, data, last_activity) VALUES(?, ?, ?);';
+		$stmt = $this->query($sql, [$session_id, $session_data, time()]);
 		$stmt = null;
 
 		return true;

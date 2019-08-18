@@ -1,5 +1,21 @@
 {
+	"name": "jfry/session",
+	"dist": {
+		"url": "https://gitlab.com/jmerrittdev/session/-/archive/master/session-master.zip",
+		"type": "zip"
+	},
+	"description": "Session with default mysql database session handler.",
+	"type": "library",
+	"authors": [
+		{
+			"name": "Jesse Merritt",
+			"email": "jmerrittdev@gmail.com"
+		}
+	],
 	"require": {
+		"php": ">=7.0.0"
+	},
+	"require-dev": {
 		"vlucas/phpdotenv": "^3.4.0"
 	},
 	"autoload": {
