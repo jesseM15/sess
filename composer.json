@@ -1,7 +1,7 @@
 {
 	"name": "jfry/session",
 	"dist": {
-		"url": "https://gitlab.com/jmerrittdev/session/-/archive/master/session-master.zip",
+		"url": "https://gitlab.com/jmerrittdev/sess/-/archive/master/sess-master.zip",
 		"type": "zip"
 	},
 	"description": "Session with default mysql database session handler.",
