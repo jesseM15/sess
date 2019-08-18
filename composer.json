@@ -1,5 +1,5 @@
 {
-	"name": "jfry/session",
+	"name": "jjm/session",
 	"dist": {
 		"url": "https://gitlab.com/jmerrittdev/sess/-/archive/master/sess-master.zip",
 		"type": "zip"
